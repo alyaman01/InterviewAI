@@ -11,7 +11,10 @@ export default function DashboardPage() {
   const [jobRole, setJobRole] = useState('');
   const [userName, setuserName] = useState('candidate');
 
-    useEffect(() => {
+  // Central Dynamic API Base URL
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://interviewai-bkxb.onrender.com';
+
+  useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/login');
@@ -22,8 +25,6 @@ export default function DashboardPage() {
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        
-        // 🔥 FIXED JUGAAAD: Direct parsedUser.name check karo kyuki user dabba pehle hi login par filter ho chuka hai
         if (parsedUser && parsedUser.name) {
           setuserName(parsedUser.name);
         }
@@ -33,14 +34,13 @@ export default function DashboardPage() {
     }
   }, [router]);
 
-
   const interviewCards = [
     { id: 'live', name: 'Live Custom AI Interview', value: 'MERN', desc: 'Completely dynamic AI round mapping full stack workflows.', color: 'from-purple-600 to-indigo-700', icon: '⚡' },
     { id: 'node', name: 'Node.js Core Interview', value: 'Node.js', desc: 'Asynchronous event driven paradigms, clusters, streaming buffers profiling.', color: 'from-green-600 to-teal-700', icon: '🟢' },
     { id: 'react', name: 'React Development Round', value: 'React', desc: 'Concurrent architecture pipelines, hooks engine mechanics, virtual DOM tree optimizations.', color: 'from-blue-600 to-cyan-700', icon: '⚛️' },
     { id: 'express', name: 'Express.js Systems Test', value: 'Express', desc: 'Robust routing lifecycles, middleware pipelines validation systems engineering.', color: 'from-gray-700 to-slate-800', icon: '🚀' },
     { id: 'mern', name: 'MERN Stack Engineering', value: 'MERN', desc: 'End-to-end full stack architecture validation context database controls.', color: 'from-orange-600 to-red-600', icon: '💻' },
-    { id:'hr', name:'HR Round', value:'HR', desc:'Full questions about hr round',color:'from-yellow-600 to-white-500',icon:''}
+    { id: 'hr', name: 'HR Round', value: 'HR', desc: 'Full questions about hr round', color: 'from-yellow-600 to-white-500', icon: '👔' }
   ];
 
   const handleCreateInterview = async (e) => {
@@ -54,7 +54,8 @@ export default function DashboardPage() {
     const token = localStorage.getItem('token');
 
     try {
-      const res = await fetch('http://localhost:4000/api/interviews/start', {
+      // 🚀 FIXED: Dynamic Render URL with Fallback
+      const res = await fetch(`${API_BASE_URL}/api/interviews/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,11 +77,6 @@ export default function DashboardPage() {
       }
 
       setSelectedTech(null);
-      
-      // FIXED JUGAAAD: Session create hote hi pehla question query parameters ke sath bheinjein
-     // handleCreateInterview function ke aakhiri line push code ko aise normal change kar do dashboard file mein:
-      setSelectedTech(null);
-      // Falthu query parameters URL string hatayi, direct room ID par bheinja
       router.push(`/interview/${data.interview._id}`);
 
     } catch (err) {

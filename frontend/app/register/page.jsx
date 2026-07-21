@@ -4,11 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LuArrowLeft, LuLock, LuMail, LuUser } from "react-icons/lu";
 
-export default function Register(){    
+export default function Register() {    
     const [formData, setformData] = useState({ name: '', email: '', password: '' });
     const [error, seterror] = useState(''); 
     const [loading, setloading] = useState(false);
     const router = useRouter();
+
+    // Central Dynamic API Base URL
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://interviewai-bkxb.onrender.com';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -16,7 +19,8 @@ export default function Register(){
         setloading(true);
 
         try {
-            const res = await fetch('http://localhost:4000/api/auth/register', {
+            // 🚀 FIXED: Dynamic Render URL
+            const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),

@@ -8,11 +8,15 @@ export default function FeedbackPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // Central Dynamic API Base URL
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://interviewai-bkxb.onrender.com';
+
   useEffect(() => {
     const fetchFeedback = async () => {
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`http://localhost:4000/api/interviews/list`, {
+        // 🚀 FIXED: Dynamic Render URL with Fallback
+        const res = await fetch(`${API_BASE_URL}/api/interviews/list`, {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -28,7 +32,7 @@ export default function FeedbackPage() {
       }
     };
     if (interviewId) fetchFeedback();
-  }, [interviewId]);
+  }, [interviewId, API_BASE_URL]);
 
   if (loading) {
     return (

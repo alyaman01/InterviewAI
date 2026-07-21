@@ -10,13 +10,17 @@ export default function LoginPage() {
     const [loading, setloading] = useState(false);
     const router = useRouter();
 
+    // Central Dynamic API Base URL
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://interviewai-bkxb.onrender.com';
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         seterror('');
         setloading(true);
 
         try {
-            const res = await fetch('http://localhost:4000/api/auth/login', {
+            // 🚀 FIXED: Dynamic Render URL
+            const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
@@ -39,7 +43,7 @@ export default function LoginPage() {
     };
 
     return (
-        // BACKROUND UPGRADE: Pure Jet Black (bg-[#070708]) aur grid lines overlay jaisa landing page par tha
+        // BACKGROUND UPGRADE: Pure Jet Black (bg-[#070708]) aur grid lines overlay jaisa landing page par tha
         <div className="flex min-h-screen flex-col items-center justify-center bg-[#070708] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.12),rgba(255,255,255,0))] px-4 font-sans relative overflow-hidden">
             
             {/* Back to Home Button */}

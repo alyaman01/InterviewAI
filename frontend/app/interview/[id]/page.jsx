@@ -16,6 +16,9 @@ export default function InterviewChatPage() {
 
   const chatEndRef = useRef(null);
 
+  // Central Dynamic API Base URL
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://interviewai-bkxb.onrender.com';
+
   // Auto-scroll to bottom on new messages
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -26,7 +29,8 @@ export default function InterviewChatPage() {
     const fetchChatHistory = async () => {
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`http://localhost:4000/api/chat/chat/${interviewId}`, {
+        // 🚀 FIXED: Dynamic Render URL
+        const res = await fetch(`${API_BASE_URL}/api/chat/chat/${interviewId}`, {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -39,17 +43,43 @@ export default function InterviewChatPage() {
       }
     };
     if (interviewId) fetchChatHistory();
-  }, [interviewId]);
+  }, [interviewId, API_BASE_URL]);
+
+  // Common function to send message
+  const triggerMessageSubmit = useCallback(async (msgText) => {
+    if (loading) return;
+    setInputMessage('');
+    setLoading(true);
+    const token = localStorage.getItem('token');
+
+    try {
+      // 🚀 FIXED: Dynamic Render URL
+      const res = await fetch(`${API_BASE_URL}/api/chat/message`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ interviewId, sender: 'user', message: msgText })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to send message');
+      
+      setChats((prev) => [...prev, data.userMessage, data.aiMessage]);
+      setQuestionNonce((prev) => prev + 1); // Reset 90s timer for new question
+    } catch (err) { 
+      alert(err.message); 
+    } finally { 
+      setLoading(false); 
+    }
+  }, [loading, interviewId, API_BASE_URL]);
 
   // Handle timeout auto-submit safely
   const handleAutoSubmitTimeOut = useCallback(() => {
     console.log("Time's up! Submitting answer automatically...");
-    // Auto submit empty or default text if user didn't answer in time
     const autoText = inputMessage.trim() || "[Time Expired - Candidate provided no response]";
-    
-    // Trigger submit directly
     triggerMessageSubmit(autoText);
-  }, [inputMessage]);
+  }, [inputMessage, triggerMessageSubmit]);
 
   // High-performance timer effect
   useEffect(() => {
@@ -75,34 +105,6 @@ export default function InterviewChatPage() {
       if (localTimeoutRef) clearTimeout(localTimeoutRef);
     };
   }, [questionNonce, handleAutoSubmitTimeOut]);
-
-  // Common function to send message
-  const triggerMessageSubmit = async (msgText) => {
-    if (loading) return;
-    setInputMessage('');
-    setLoading(true);
-    const token = localStorage.getItem('token');
-
-    try {
-      const res = await fetch('http://localhost:4000/api/chat/message', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json', 
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify({ interviewId, sender: 'user', message: msgText })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to send message');
-      
-      setChats((prev) => [...prev, data.userMessage, data.aiMessage]);
-      setQuestionNonce((prev) => prev + 1); // Reset 90s timer for new question
-    } catch (err) { 
-      alert(err.message); 
-    } finally { 
-      setLoading(false); 
-    }
-  };
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -135,7 +137,8 @@ export default function InterviewChatPage() {
     const token = localStorage.getItem('token');
 
     try {
-      const res = await fetch('http://localhost:4000/api/interviews/end', {
+      // 🚀 FIXED: Dynamic Render URL
+      const res = await fetch(`${API_BASE_URL}/api/interviews/end`, {
         method: 'POST', 
         headers: { 
           'Content-Type': 'application/json', 
