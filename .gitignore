@@ -1,0 +1,14 @@
+# Environment files
+.env
+.env*
+.env.local
+backend/.env
+frontend/.env
+*.env
+
+# Dependencies & Build folders
+node_modules/
+.next/
+build/
+dist/
+.DS_Store
